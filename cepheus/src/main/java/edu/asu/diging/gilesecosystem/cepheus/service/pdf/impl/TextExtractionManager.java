@@ -90,18 +90,21 @@ public class TextExtractionManager implements ITextExtractionManager {
         }
         
         int numPages = pdfDocument.getNumberOfPages();
-        List<String> pagePaths = new ArrayList<String>();
-        List<String> pageUrls = new ArrayList<>();
+        List<edu.asu.diging.gilesecosystem.requests.impl.Page> pages = new ArrayList<>();
         for (int i = 0; i < numPages; i++) {
             // if there is embedded text, let's use that one before OCRing
             if (pathMainText != null) {
                 Page page = extractPageText(pdfDocument, i, request.getRequestId(), request.getDocumentId(), request.getFilename());
                 if (page != null) {
-                    pagePaths.add(page.path);
-                    pageUrls.add(restEndpoint + DownloadFileController.GET_FILE_URL
-                        .replace(DownloadFileController.REQUEST_ID_PLACEHOLDER, request.getRequestId())
-                        .replace(DownloadFileController.DOCUMENT_ID_PLACEHOLDER, request.getDocumentId())
-                        .replace(DownloadFileController.FILENAME_PLACEHOLDER, page.filename));
+                    edu.asu.diging.gilesecosystem.requests.impl.Page requestPage = new edu.asu.diging.gilesecosystem.requests.impl.Page();
+                    requestPage.setDownloadUrl(restEndpoint + DownloadFileController.GET_FILE_URL
+                            .replace(DownloadFileController.REQUEST_ID_PLACEHOLDER, request.getRequestId())
+                            .replace(DownloadFileController.DOCUMENT_ID_PLACEHOLDER, request.getDocumentId())
+                            .replace(DownloadFileController.FILENAME_PLACEHOLDER, page.filename));
+                    requestPage.setPathToFile(page.path);
+                    requestPage.setFilename(page.filename);
+                    requestPage.setPageNr(i);
+                    pages.add(requestPage);
                 }
             } 
         }
@@ -129,12 +132,12 @@ public class TextExtractionManager implements ITextExtractionManager {
         completedRequest.setDocumentId(request.getDocumentId());
         completedRequest.setDownloadPath(pathMainText);
         completedRequest.setDownloadUrl(fileEndpoint);
-        completedRequest.setPagesDownloadPaths(pagePaths);
-        completedRequest.setPagesDownloadUrls(pageUrls);
         completedRequest.setFilename(request.getFilename());
         completedRequest.setRequestId(request.getRequestId());
         completedRequest.setStatus(RequestStatus.COMPLETE);
         completedRequest.setExtractionDate(OffsetDateTime.now(ZoneId.of("UTC")).toString());
+        completedRequest.setTextFilename(fileName);
+        completedRequest.setPages(pages);
         
         try {
             requestProducer.sendRequest(completedRequest, propertiesManager.getProperty(IPropertiesManager.KAFKA_EXTRACTION_COMPLETE_TOPIC));

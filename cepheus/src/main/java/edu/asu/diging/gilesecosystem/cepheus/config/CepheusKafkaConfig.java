@@ -37,6 +37,7 @@ public class CepheusKafkaConfig implements KafkaConfig {
                 IntegerDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class);
+        props.put(ConsumerConfig.CLIENT_ID_CONFIG, "geco.consumer.cepheus.1");
         // consumer groups allow a pool of processes to divide the work of
         // consuming and processing records
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "gileseco.pdf.processing");

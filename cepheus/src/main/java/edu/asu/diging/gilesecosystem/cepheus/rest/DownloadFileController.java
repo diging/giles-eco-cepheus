@@ -37,9 +37,11 @@ public class DownloadFileController {
             HttpServletRequest request) {
 
         byte[] content = storageManager.getFileContent(requestId, documentId, null, filename);
+        
         if (content == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        storageManager.deleteFile(requestId, documentId, null, filename, true);
         
         String contentType = null;
         if (content != null) {

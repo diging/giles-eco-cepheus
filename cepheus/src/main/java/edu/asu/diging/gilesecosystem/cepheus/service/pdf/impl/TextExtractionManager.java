@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -15,18 +14,8 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import edu.asu.diging.gilesecosystem.cepheus.exceptions.CepheusExtractionException;
 import edu.asu.diging.gilesecosystem.cepheus.rest.DownloadFileController;
@@ -39,7 +28,6 @@ import edu.asu.diging.gilesecosystem.requests.RequestStatus;
 import edu.asu.diging.gilesecosystem.requests.exceptions.MessageCreationException;
 import edu.asu.diging.gilesecosystem.requests.impl.CompletedTextExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.kafka.IRequestProducer;
-import edu.asu.diging.gilesecosystem.util.files.IFileStorageManager;
 
 @Service
 public class TextExtractionManager extends AExtractionManager implements ITextExtractionManager {

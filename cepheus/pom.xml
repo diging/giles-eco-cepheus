@@ -21,6 +21,11 @@
 		<cepheus.base.url>http://localhost:8082/cepheus</cepheus.base.url>
 		<!-- Kafka -->
 		<cepheus.kafka.hosts>localhost:9092</cepheus.kafka.hosts>
+		
+		<!-- pdf -->
+		<pdf.conversion.dpi>600</pdf.conversion.dpi>
+		<pdf.conversion.type>RGB</pdf.conversion.type>
+		<pdf.conversion.format>tiff</pdf.conversion.format>
 	</properties>
 
 	<dependencies>

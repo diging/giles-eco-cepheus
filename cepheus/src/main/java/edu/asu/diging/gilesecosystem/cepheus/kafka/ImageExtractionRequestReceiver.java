@@ -11,24 +11,24 @@ import org.springframework.kafka.annotation.KafkaListener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.asu.diging.gilesecosystem.cepheus.exceptions.CepheusExtractionException;
-import edu.asu.diging.gilesecosystem.cepheus.service.pdf.ITextExtractionManager;
-import edu.asu.diging.gilesecosystem.requests.ITextExtractionRequest;
-import edu.asu.diging.gilesecosystem.requests.impl.TextExtractionRequest;
+import edu.asu.diging.gilesecosystem.cepheus.service.pdf.IImageExtractionManager;
+import edu.asu.diging.gilesecosystem.requests.IImageExtractionRequest;
+import edu.asu.diging.gilesecosystem.requests.impl.ImageExtractionRequest;
 
 @PropertySource("classpath:/config.properties")
-public class TextExtractionRequestReceiver {
+public class ImageExtractionRequestReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
     @Autowired
-    private ITextExtractionManager extractionManager;
+    private IImageExtractionManager extractionManager;
     
-    @KafkaListener(id="cepheus.extract.text", topics = "${topic_extract_text_request}")
+    @KafkaListener(id="cepheus.extract.images", topics = "${topic_extract_images_request}")
     public void receiveMessage(String message) {
         ObjectMapper mapper = new ObjectMapper();
-        ITextExtractionRequest request = null;
+        IImageExtractionRequest request = null;
         try {
-            request = mapper.readValue(message, TextExtractionRequest.class);
+            request = mapper.readValue(message, ImageExtractionRequest.class);
         } catch (IOException e) {
             logger.error("Could not unmarshall request.", e);
             // FIXME: handle this case
@@ -36,7 +36,7 @@ public class TextExtractionRequestReceiver {
         }
         
         try {
-            extractionManager.extractText(request);
+            extractionManager.extractImages(request);
         } catch (CepheusExtractionException e) {
            logger.error("Could not extract text.");
            // FIXME: send to monitoring app

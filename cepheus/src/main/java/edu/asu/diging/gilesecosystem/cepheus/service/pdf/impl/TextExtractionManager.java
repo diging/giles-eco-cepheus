@@ -107,15 +107,18 @@ public class TextExtractionManager extends AExtractionManager implements ITextEx
                 .replace(DownloadFileController.FILENAME_PLACEHOLDER, fileName);
         
         completedRequest.setDocumentId(request.getDocumentId());
-        completedRequest.setDownloadPath(extractedText.path);
-        completedRequest.setSize(extractedText.size);
-        completedRequest.setDownloadUrl(fileEndpoint);
         completedRequest.setFilename(request.getFilename());
         completedRequest.setRequestId(request.getRequestId());
         completedRequest.setStatus(RequestStatus.COMPLETE);
         completedRequest.setExtractionDate(OffsetDateTime.now(ZoneId.of("UTC")).toString());
-        completedRequest.setTextFilename(fileName);
         completedRequest.setPages(pages);
+        
+        if (extractedText != null) {
+            completedRequest.setDownloadPath(extractedText.path);
+            completedRequest.setSize(extractedText.size);
+            completedRequest.setDownloadUrl(fileEndpoint);
+            completedRequest.setTextFilename(fileName);
+        }
         
         try {
             requestProducer.sendRequest(completedRequest, propertiesManager.getProperty(IPropertiesManager.KAFKA_EXTRACTION_COMPLETE_TOPIC));

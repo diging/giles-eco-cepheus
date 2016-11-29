@@ -14,8 +14,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 
-import edu.asu.diging.gilesecosystem.cepheus.kafka.ImageExtractionRequestReceiver;
-import edu.asu.diging.gilesecosystem.cepheus.kafka.TextExtractionRequestReceiver;
+import edu.asu.diging.gilesecosystem.cepheus.kafka.ExtractionRequestReceiver;
 import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
 import edu.asu.diging.gilesecosystem.requests.kafka.KafkaConfig;
 
@@ -59,13 +58,8 @@ public class CepheusKafkaConfig implements KafkaConfig {
     }
 
     @Bean
-    public TextExtractionRequestReceiver receiver() {
-        return new TextExtractionRequestReceiver();
-    }
-    
-    @Bean
-    public ImageExtractionRequestReceiver ImageExtractionReceiver() {
-        return new ImageExtractionRequestReceiver();
+    public ExtractionRequestReceiver receiver() {
+        return new ExtractionRequestReceiver();
     }
 
     @Override

@@ -111,14 +111,13 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
         
         ICompletedImageExtractionRequest completedRequest = null;
         try {
-            completedRequest = requestFactory.createRequest(request.getUploadId());
+            completedRequest = requestFactory.createRequest(request.getRequestId(), request.getUploadId());
         } catch (InstantiationException | IllegalAccessException e) {
             logger.error("Could not create request.", e);
             // this should never happen if used correctly
         }    
         
         completedRequest.setDocumentId(request.getDocumentId());
-        completedRequest.setRequestId(request.getRequestId());
         completedRequest.setStatus(RequestStatus.COMPLETE);
         completedRequest.setExtractionDate(OffsetDateTime.now(ZoneId.of("UTC")).toString());
         completedRequest.setPages(pages);

@@ -18,5 +18,9 @@
 		<put-attribute name="content" value="/WEB-INF/views/home.jsp" />	
 	</definition>
 	
+	<!--  admin -->
+	<definition name="admin/system/config" extends="base.definition">
+		<put-attribute name="content" value="/WEB-INF/views/admin/system_config.jsp" />
+	</definition>
 	
 </tiles-definitions>

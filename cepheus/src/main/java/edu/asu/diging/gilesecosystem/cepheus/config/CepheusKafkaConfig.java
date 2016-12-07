@@ -14,7 +14,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 
-import edu.asu.diging.gilesecosystem.cepheus.kafka.TextExtractionRequestReceiver;
+import edu.asu.diging.gilesecosystem.cepheus.kafka.ExtractionRequestReceiver;
 import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
 import edu.asu.diging.gilesecosystem.requests.kafka.KafkaConfig;
 
@@ -36,6 +36,7 @@ public class CepheusKafkaConfig implements KafkaConfig {
                 IntegerDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class);
+        props.put(ConsumerConfig.CLIENT_ID_CONFIG, "geco.consumer.cepheus.1");
         // consumer groups allow a pool of processes to divide the work of
         // consuming and processing records
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "gileseco.pdf.processing");
@@ -57,8 +58,8 @@ public class CepheusKafkaConfig implements KafkaConfig {
     }
 
     @Bean
-    public TextExtractionRequestReceiver receiver() {
-        return new TextExtractionRequestReceiver();
+    public ExtractionRequestReceiver receiver() {
+        return new ExtractionRequestReceiver();
     }
 
     @Override

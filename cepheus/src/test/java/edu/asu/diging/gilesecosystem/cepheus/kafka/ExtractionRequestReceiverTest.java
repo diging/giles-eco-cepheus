@@ -14,6 +14,7 @@ import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.IImageExtractionManager;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.ITextExtractionManager;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.impl.TextExtractionManager;
+import edu.asu.diging.gilesecosystem.requests.impl.ImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.impl.TextExtractionRequest;
 
 public class ExtractionRequestReceiverTest {
@@ -29,6 +30,14 @@ public class ExtractionRequestReceiverTest {
 
     @InjectMocks
     private ExtractionRequestReceiver receiverToTest;
+    
+    private String REQID = "REQID";
+    private String UPID = "UPID";
+    private String DOCID = "DOCID";
+    private String FILEID = "FILEID";
+    private String URL = "url";
+    private String PATH = "Path";
+    private String FILENAME = "filename";
 
     @Before
     public void setUp() {
@@ -47,14 +56,8 @@ public class ExtractionRequestReceiverTest {
 
     @Test
     public void test_receiveMessage_textExtraction() throws CepheusExtractionException {
-        String REQID = "REQID";
         String TYPE = "giles.request_type.text_extraction";
-        String UPID = "UPID";
-        String DOCID = "DOCID";
-        String FILEID = "FILEID";
-        String URL = "url";
-        String PATH = "Path";
-        String FILENAME = "filename";
+        
         receiverToTest
                 .receiveMessage(
                         "{\"requestId\":\"" + REQID + "\",\"requestType\":\"" + TYPE + "\"," + 
@@ -66,6 +69,31 @@ public class ExtractionRequestReceiverTest {
         Mockito.verify(textExtractionManager).extractText(argumentCaptor.capture());
         
         TextExtractionRequest request = argumentCaptor.getValue();
+        Assert.assertEquals(REQID, request.getRequestId());
+        Assert.assertEquals(TYPE, request.getType());
+        Assert.assertEquals(UPID, request.getUploadId());
+        Assert.assertEquals(DOCID, request.getDocumentId());
+        Assert.assertEquals(FILEID, request.getFileId());
+        Assert.assertEquals(URL, request.getDownloadUrl());
+        Assert.assertEquals(PATH, request.getDownloadPath());
+        Assert.assertEquals(FILENAME, request.getFilename());
+    }
+    
+    @Test
+    public void test_receiveMessage_textImages() throws CepheusExtractionException {
+        String TYPE = "giles.request_type.image_extraction";
+        
+        receiverToTest
+                .receiveMessage(
+                        "{\"requestId\":\"" + REQID + "\",\"requestType\":\"" + TYPE + "\"," + 
+                         "\"uploadId\":\"" + UPID + "\",\"documentId\":\"" + DOCID + "\"," + 
+                         "\"fileId\":\"" + FILEID + "\",\"downloadUrl\":\"" + URL + "\"," + 
+                         "\"downloadPath\":\""+ PATH + "\",\"filename\":\"" + FILENAME + "\"}",
+                        "geco.requests.pdf.toimages");
+        ArgumentCaptor<ImageExtractionRequest> argumentCaptor = ArgumentCaptor.forClass(ImageExtractionRequest.class);
+        Mockito.verify(imageExtractionManager).extractImages(argumentCaptor.capture());
+        
+        ImageExtractionRequest request = argumentCaptor.getValue();
         Assert.assertEquals(REQID, request.getRequestId());
         Assert.assertEquals(TYPE, request.getType());
         Assert.assertEquals(UPID, request.getUploadId());

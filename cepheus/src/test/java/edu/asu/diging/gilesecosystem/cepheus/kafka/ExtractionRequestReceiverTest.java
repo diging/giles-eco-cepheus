@@ -13,7 +13,6 @@ import edu.asu.diging.gilesecosystem.cepheus.exceptions.CepheusExtractionExcepti
 import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.IImageExtractionManager;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.ITextExtractionManager;
-import edu.asu.diging.gilesecosystem.cepheus.service.pdf.impl.TextExtractionManager;
 import edu.asu.diging.gilesecosystem.requests.impl.ImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.impl.TextExtractionRequest;
 
@@ -80,7 +79,7 @@ public class ExtractionRequestReceiverTest {
     }
     
     @Test
-    public void test_receiveMessage_textImages() throws CepheusExtractionException {
+    public void test_receiveMessage_imageExtraction() throws CepheusExtractionException {
         String TYPE = "giles.request_type.image_extraction";
         
         receiverToTest

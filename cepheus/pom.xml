@@ -26,6 +26,7 @@
 		<pdf.conversion.dpi>600</pdf.conversion.dpi>
 		<pdf.conversion.type>RGB</pdf.conversion.type>
 		<pdf.conversion.format>tiff</pdf.conversion.format>
+        
 	</properties>
 
 	<dependencies>
@@ -194,7 +195,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
+			<version>2.5</version>
 		</dependency>
 		
 		<!-- PDF library -->
@@ -237,6 +238,18 @@
 			<groupId>edu.asu.diging.giles-eco</groupId>
 			<artifactId>util</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- testing -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.10.19</version>
 		</dependency>
 	</dependencies>
 

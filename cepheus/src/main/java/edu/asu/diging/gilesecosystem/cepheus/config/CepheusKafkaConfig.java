@@ -2,6 +2,7 @@ package edu.asu.diging.gilesecosystem.cepheus.config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
@@ -36,7 +37,7 @@ public class CepheusKafkaConfig implements KafkaConfig {
                 IntegerDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class);
-        props.put(ConsumerConfig.CLIENT_ID_CONFIG, "geco.consumer.cepheus.1");
+        props.put(ConsumerConfig.CLIENT_ID_CONFIG, "geco.consumer.cepheus." + new Random().nextInt(100));
         // consumer groups allow a pool of processes to divide the work of
         // consuming and processing records
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "gileseco.pdf.processing");
@@ -65,6 +66,11 @@ public class CepheusKafkaConfig implements KafkaConfig {
     @Override
     public String getHosts() {
         return propertiesManager.getProperty(IPropertiesManager.KAFKA_HOSTS);
+    }
+
+    @Override
+    public String getProducerId() {
+        return "geco.producer.cepheus." + new Random().nextInt(100);
     }
 
 }

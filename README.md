@@ -1,5 +1,7 @@
 # giles-eco-cepheus
 
+<a href='http://diging-dev.asu.edu/jenkins/job/GECO_test_cepheus_on_push'><img src='http://diging-dev.asu.edu/jenkins/buildStatus/icon?job=GECO_test_cepheus_on_push'></a>
+
 This repository contains Cepheus which is part of the Giles Ecosystem. Cepheus is an app to extract images and embedded text from PDFs.
 
 The Giles Ecosystem is a distributed system to run OCR on images and extract images and texts from PDF files. This repository contains the text and image extraction component of this system called "Cepheus". The system requires the following software:

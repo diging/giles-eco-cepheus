@@ -1,4 +1,5 @@
-# giles-eco-cepheus
+# Cepheus 
+## giles-eco-cepheus
 
 <a href='http://diging-dev.asu.edu/jenkins/job/GECO_test_cepheus_on_push'><img src='http://diging-dev.asu.edu/jenkins/buildStatus/icon?job=GECO_test_cepheus_on_push'></a>
 

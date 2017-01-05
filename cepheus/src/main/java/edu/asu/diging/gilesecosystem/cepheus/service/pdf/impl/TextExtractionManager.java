@@ -53,6 +53,7 @@ public class TextExtractionManager extends AExtractionManager implements ITextEx
      */
     @Override
     public void extractText(ITextExtractionRequest request) throws CepheusExtractionException {
+        logger.info("Extracting text for: " + request.getDownloadUrl());
         PDDocument pdfDocument;
         try {
             pdfDocument = PDDocument.load(downloadFile(request.getDownloadUrl()));

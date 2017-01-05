@@ -62,6 +62,8 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
      */
     @Override
     public void extractImages(IImageExtractionRequest request) throws CepheusExtractionException {
+        logger.info("Extracting images for: " + request.getDownloadUrl());
+        
         String dpi = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_DPI).trim();
         String type = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_TYPE).trim();
         String format = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_FORMAT).trim();

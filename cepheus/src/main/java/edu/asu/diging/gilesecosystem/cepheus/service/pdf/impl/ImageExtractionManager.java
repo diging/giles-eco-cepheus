@@ -1,6 +1,7 @@
 package edu.asu.diging.gilesecosystem.cepheus.service.pdf.impl;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -36,7 +38,8 @@ import edu.asu.diging.gilesecosystem.requests.kafka.IRequestProducer;
 import edu.asu.diging.gilesecosystem.util.files.IFileStorageManager;
 
 @Service
-public class ImageExtractionManager extends AExtractionManager implements IImageExtractionManager {
+public class ImageExtractionManager extends AExtractionManager implements
+        IImageExtractionManager {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -45,32 +48,50 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
 
     @Autowired
     private IFileStorageManager fileStorageManager;
-    
+
     @Autowired
     private IRequestFactory<ICompletedImageExtractionRequest, CompletedImageExtractionRequest> requestFactory;
-    
+
     @Autowired
     private IRequestProducer requestProducer;
-    
+
     @PostConstruct
     public void init() {
+        /*
+         * Recommended fix for performance issues due to colors: "Due to the
+         * change of the java color management module towards “LittleCMS”, users
+         * can experience slow performance in color operations. Solution:
+         * disable LittleCMS in favour of the old KCMS (Kodak Color Management
+         * System)"
+         */
+        System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
+
         requestFactory.config(CompletedImageExtractionRequest.class);
     }
-    
-    /* (non-Javadoc)
-     * @see edu.asu.diging.gilesecosystem.cepheus.service.pdf.impl.IImageExtractionManager#extractImages(edu.asu.diging.gilesecosystem.requests.IImageExtractionRequest)
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see edu.asu.diging.gilesecosystem.cepheus.service.pdf.impl.
+     * IImageExtractionManager
+     * #extractImages(edu.asu.diging.gilesecosystem.requests
+     * .IImageExtractionRequest)
      */
     @Override
-    public void extractImages(IImageExtractionRequest request) throws CepheusExtractionException {
+    public void extractImages(IImageExtractionRequest request)
+            throws CepheusExtractionException {
         logger.info("Extracting images for: " + request.getDownloadUrl());
-        
-        String dpi = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_DPI).trim();
-        String type = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_TYPE).trim();
-        String format = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_FORMAT).trim();
-        
+
+        String dpi = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_DPI)
+                .trim();
+        String type = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_TYPE)
+                .trim();
+        String format = propertiesManager.getProperty(
+                IPropertiesManager.PDF_TO_IMAGE_FORMAT).trim();
+
         PDDocument pdfDocument;
         try {
-            pdfDocument = PDDocument.load(downloadFile(request.getDownloadUrl()));
+            pdfDocument = PDDocument.load(new ByteArrayInputStream(downloadFile(request.getDownloadUrl())), MemoryUsageSetting.setupTempFileOnly());
         } catch (IOException e) {
             throw new CepheusExtractionException(e);
         }
@@ -78,87 +99,97 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
         int numPages = pdfDocument.getNumberOfPages();
         PDFRenderer renderer = new PDFRenderer(pdfDocument);
         List<edu.asu.diging.gilesecosystem.requests.impl.Page> pages = new ArrayList<>();
-        
+
         String restEndpoint = getRestEndpoint();
-        
+
         for (int i = 0; i < numPages; i++) {
             try {
                 BufferedImage image = renderer.renderImageWithDPI(i,
                         Float.parseFloat(dpi), ImageType.valueOf(type));
                 String fileName = request.getFilename() + "." + i + "." + format;
-                Page pageImage = saveImage(request.getRequestId(), request.getDocumentId(), image, fileName);
-                
+                Page pageImage = saveImage(request.getRequestId(),
+                        request.getDocumentId(), image, fileName);
+
                 edu.asu.diging.gilesecosystem.requests.impl.Page requestPage = new edu.asu.diging.gilesecosystem.requests.impl.Page();
-                requestPage.setDownloadUrl(restEndpoint + DownloadFileController.GET_FILE_URL
-                        .replace(DownloadFileController.REQUEST_ID_PLACEHOLDER, request.getRequestId())
-                        .replace(DownloadFileController.DOCUMENT_ID_PLACEHOLDER, request.getDocumentId())
-                        .replace(DownloadFileController.FILENAME_PLACEHOLDER, pageImage.filename));
+                requestPage.setDownloadUrl(restEndpoint
+                        + DownloadFileController.GET_FILE_URL
+                                .replace(DownloadFileController.REQUEST_ID_PLACEHOLDER,
+                                        request.getRequestId())
+                                .replace(DownloadFileController.DOCUMENT_ID_PLACEHOLDER,
+                                        request.getDocumentId())
+                                .replace(DownloadFileController.FILENAME_PLACEHOLDER,
+                                        pageImage.filename));
                 requestPage.setPathToFile(pageImage.path);
                 requestPage.setFilename(pageImage.filename);
                 requestPage.setPageNr(i);
                 requestPage.setContentType(pageImage.contentType);
                 requestPage.setSize(pageImage.size);
                 pages.add(requestPage);
-                
+
             } catch (NumberFormatException | IOException e) {
                 logger.error("Could not render image.", e);
             }
         }
-        
+
         try {
             pdfDocument.close();
         } catch (IOException e) {
             logger.error("Error closing document.", e);
         }
-        
+
         ICompletedImageExtractionRequest completedRequest = null;
         try {
-            completedRequest = requestFactory.createRequest(request.getRequestId(), request.getUploadId());
+            completedRequest = requestFactory.createRequest(request.getRequestId(),
+                    request.getUploadId());
         } catch (InstantiationException | IllegalAccessException e) {
             logger.error("Could not create request.", e);
             // this should never happen if used correctly
-        }    
-        
+        }
+
         completedRequest.setDocumentId(request.getDocumentId());
         completedRequest.setStatus(RequestStatus.COMPLETE);
-        completedRequest.setExtractionDate(OffsetDateTime.now(ZoneId.of("UTC")).toString());
+        completedRequest.setExtractionDate(OffsetDateTime.now(ZoneId.of("UTC"))
+                .toString());
         completedRequest.setPages(pages);
-        
+
         try {
-            requestProducer.sendRequest(completedRequest, propertiesManager.getProperty(IPropertiesManager.KAFKA_IMAGE_EXTRACTION_COMPLETE_TOPIC));
+            requestProducer
+                    .sendRequest(
+                            completedRequest,
+                            propertiesManager
+                                    .getProperty(IPropertiesManager.KAFKA_IMAGE_EXTRACTION_COMPLETE_TOPIC));
         } catch (MessageCreationException e) {
             logger.error("Could not send message.", e);
         }
-        
-    }
-        
-        private Page saveImage(String requestId, String documentId,
-                BufferedImage image, String fileName)
-                throws IOException, FileNotFoundException {
-            String dpi = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_DPI).trim();
-            String format = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_FORMAT).trim();
-            
-            String dirFolder = fileStorageManager.getAndCreateStoragePath(requestId,
-                    documentId, null);
-            String filePath = dirFolder + File.separator + fileName;
-            File fileObject = new File(filePath);
-            OutputStream output = new FileOutputStream(fileObject);
-            boolean success = false;
-            try {
-                success = ImageIOUtil.writeImage(image, format, output,
-                    new Integer(dpi));
-            } finally {
-                output.close();
-            }
-            if (!success) {
-                return null;
-            }
 
-            
-            Page page = new Page(dirFolder + File.separator + fileName, fileName);
-            page.contentType = "image/" + format;
-            page.size = fileObject.length();
-            
-            return page;
+    }
+
+    private Page saveImage(String requestId, String documentId, BufferedImage image,
+            String fileName) throws IOException, FileNotFoundException {
+        String dpi = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_DPI)
+                .trim();
+        String format = propertiesManager.getProperty(
+                IPropertiesManager.PDF_TO_IMAGE_FORMAT).trim();
+
+        String dirFolder = fileStorageManager.getAndCreateStoragePath(requestId,
+                documentId, null);
+        String filePath = dirFolder + File.separator + fileName;
+        File fileObject = new File(filePath);
+        OutputStream output = new FileOutputStream(fileObject);
+        boolean success = false;
+        try {
+            success = ImageIOUtil.writeImage(image, format, output, new Integer(dpi));
+        } finally {
+            output.close();
         }
+        if (!success) {
+            return null;
+        }
+
+        Page page = new Page(dirFolder + File.separator + fileName, fileName);
+        page.contentType = "image/" + format;
+        page.size = fileObject.length();
+
+        return page;
+    }
 }

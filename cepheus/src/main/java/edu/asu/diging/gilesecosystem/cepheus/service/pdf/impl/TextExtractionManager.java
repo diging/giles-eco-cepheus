@@ -1,6 +1,7 @@
 package edu.asu.diging.gilesecosystem.cepheus.service.pdf.impl;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +58,7 @@ public class TextExtractionManager extends AExtractionManager implements ITextEx
         logger.info("Extracting text for: " + request.getDownloadUrl());
         PDDocument pdfDocument;
         try {
-            pdfDocument = PDDocument.load(downloadFile(request.getDownloadUrl()));
+            pdfDocument = PDDocument.load(new ByteArrayInputStream(downloadFile(request.getDownloadUrl())), MemoryUsageSetting.setupTempFileOnly());
         } catch (IOException e) {
             throw new CepheusExtractionException(e);
         }

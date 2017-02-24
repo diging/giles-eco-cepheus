@@ -40,6 +40,7 @@ public class EditPropertiesController {
         
         page.setGilesAccessToken(propertyManager.getProperty(IPropertiesManager.GILES_ACCESS_TOKEN));
         page.setBaseUrl(propertyManager.getProperty(IPropertiesManager.CEPHEUS_URL));
+        page.setNepomukAccessToken(propertyManager.getProperty(IPropertiesManager.NEPOMUK_ACCESS_TOKEN));
         
         model.addAttribute("systemConfigPage", page);
         return "admin/system/config";
@@ -59,6 +60,7 @@ public class EditPropertiesController {
         Map<String, String> propertiesMap = new HashMap<String, String>();
         propertiesMap.put(IPropertiesManager.GILES_ACCESS_TOKEN, systemConfigPage.getGilesAccessToken());
         propertiesMap.put(IPropertiesManager.CEPHEUS_URL, systemConfigPage.getBaseUrl());
+        propertiesMap.put(IPropertiesManager.NEPOMUK_ACCESS_TOKEN, systemConfigPage.getNepomukAccessToken());
         
         try {
             propertyManager.updateProperties(propertiesMap);

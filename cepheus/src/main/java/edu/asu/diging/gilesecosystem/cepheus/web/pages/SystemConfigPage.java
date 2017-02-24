@@ -4,6 +4,7 @@ public class SystemConfigPage {
 
     private String baseUrl;
     private String gilesAccessToken;
+    private String nepomukAccessToken;
 
     
     public String getBaseUrl() {
@@ -20,6 +21,14 @@ public class SystemConfigPage {
 
     public void setGilesAccessToken(String gilesAccessToken) {
         this.gilesAccessToken = gilesAccessToken;
+    }
+
+    public String getNepomukAccessToken() {
+        return nepomukAccessToken;
+    }
+
+    public void setNepomukAccessToken(String nepomukAccessToken) {
+        this.nepomukAccessToken = nepomukAccessToken;
     }
 
 }

@@ -38,11 +38,7 @@ public class AExtractionManager {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
-        headers.set(
-                "Authorization",
-                "token "
-                        + propertiesManager
-                                .getProperty(IPropertiesManager.GILES_ACCESS_TOKEN));
+        headers.set("Authorization", "token " + propertiesManager.getProperty(IPropertiesManager.NEPOMUK_ACCESS_TOKEN));
         HttpEntity<String> entity = new HttpEntity<String>(headers);
 
         ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET,

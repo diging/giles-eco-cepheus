@@ -11,6 +11,9 @@
 		<org.springframework-version>4.3.1.RELEASE</org.springframework-version>
 		<spring-security-version>4.1.3.RELEASE</spring-security-version>
 		<admin.password>admin</admin.password>
+        
+        <tomcat.deploy.path></tomcat.deploy.path>
+        <tomcat.app.name></tomcat.app.name>
 
 		<log.level>debug</log.level>
 		<cepheus.giles.accessToken></cepheus.giles.accessToken>
@@ -296,6 +299,16 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>${tomcat.deploy.path}</url>
+                    <server>CepheusTomcatServer</server>
+                    <path>/${tomcat.app.name}</path>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 

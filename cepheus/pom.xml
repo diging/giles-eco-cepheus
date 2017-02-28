@@ -301,11 +301,11 @@
 			</plugin>
             <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
+                <artifactId>tomcat8-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
                     <url>${tomcat.deploy.path}</url>
-                    <server>CepheusTomcatServer</server>
+                    <server>CepheusProdTomcatServer</server>
                     <path>/${tomcat.app.name}</path>
                 </configuration>
             </plugin>

@@ -3,14 +3,21 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>edu.asu.diging.giles-eco</groupId>
 	<artifactId>cepheus</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>${geco.cepheus.version}</version>
 	<packaging>war</packaging>
 
 	<properties>
 		<org.slf4j-version>1.7.5</org.slf4j-version>
 		<org.springframework-version>4.3.1.RELEASE</org.springframework-version>
 		<spring-security-version>4.1.3.RELEASE</spring-security-version>
+        <geco.requests.version>0.2.1</geco.requests.version>
+        <geco.util.version>0.4.1</geco.util.version>
+        <geco.cepheus.version>0.2.2-SNAPSHOT</geco.cepheus.version>
+        
 		<admin.password>admin</admin.password>
+        
+        <tomcat.deploy.path></tomcat.deploy.path>
+        <tomcat.app.name></tomcat.app.name>
 
 		<log.level>debug</log.level>
 		<cepheus.giles.accessToken></cepheus.giles.accessToken>
@@ -35,8 +42,14 @@
 		<dependency>
 			<groupId>edu.asu.diging.giles-eco</groupId>
 			<artifactId>requests</artifactId>
-			<version>0.1</version>
+			<version>${geco.requests.version}</version>
 		</dependency>
+        
+        <dependency>
+            <groupId>edu.asu.diging.giles-eco</groupId>
+            <artifactId>util</artifactId>
+            <version>${geco.util.version}</version>
+        </dependency>
 		
 		<!-- Spring -->
 		<dependency>
@@ -234,12 +247,6 @@
 			<version>1.1.1.RELEASE</version>
 		</dependency>
 
-		<dependency>
-			<groupId>edu.asu.diging.giles-eco</groupId>
-			<artifactId>util</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		
 		<!-- testing -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -252,6 +259,16 @@
 			<version>1.10.19</version>
 		</dependency>
 	</dependencies>
+    
+    <profiles>
+        <profile>
+            <id>cepheus-prod</id>
+            <properties>
+                <tomcat.path>${tomcat.deploy.path}</tomcat.path>
+                <tomcat.app>${tomcat.app.name}</tomcat.app>
+            </properties>
+        </profile>
+    </profiles>
 
 	<build>
 		<finalName>cepheus</finalName>
@@ -296,6 +313,16 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.2</version>
+                <configuration>
+                    <url>${tomcat.path}</url>
+                    <server>CepheusProdTomcatServer</server>
+                    <path>/${tomcat.app}</path>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 

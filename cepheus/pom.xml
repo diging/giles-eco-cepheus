@@ -19,6 +19,7 @@
 
         <tomcat.deploy.path></tomcat.deploy.path>
         <tomcat.app.name></tomcat.app.name>
+        <tomcat.server.id>CepheusProdTomcatServer</tomcat.server.id>
 
         <log.level>debug</log.level>
         <cepheus.giles.accessToken></cepheus.giles.accessToken>
@@ -320,7 +321,7 @@
                 <version>2.2</version>
                 <configuration>
                     <url>${tomcat.path}</url>
-                    <server>CepheusProdTomcatServer</server>
+                    <server>${tomcat.server.id}</server>
                     <path>/${tomcat.app}</path>
                 </configuration>
             </plugin>

@@ -3,7 +3,7 @@
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib prefix="sec"
-	uri="http://www.springframework.org/security/tags"%>
+    uri="http://www.springframework.org/security/tags"%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,30 +16,30 @@
 <meta name="author" content="">
 
 <link rel="stylesheet"
-	href="<c:url value="/resources/font-awesome-4.6.3/css/font-awesome.min.css" />" />
+    href="<c:url value="/resources/font-awesome-4.6.3/css/font-awesome.min.css" />" />
 <link href='https://fonts.googleapis.com/css?family=Raleway'
-	rel='stylesheet' type='text/css'>
+    rel='stylesheet' type='text/css'>
 
 <title>Cepheus</title>
 
 <!-- Bootstrap core CSS -->
 <link
-	href="<c:url value="/resources/bootstrap/css/bootstrap.min.css" />"
-	rel="stylesheet">
+    href="<c:url value="/resources/bootstrap/css/bootstrap.min.css" />"
+    rel="stylesheet">
 
 <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 <link
-	href="<c:url value="/resources/bootstrap/assets/css/ie10-viewport-bug-workaround.css" />"
-	rel="stylesheet">
+    href="<c:url value="/resources/bootstrap/assets/css/ie10-viewport-bug-workaround.css" />"
+    rel="stylesheet">
 
 <!-- Custom styles for this template -->
 <link href="<c:url value="/resources/bootstrap/grid.css" />"
-	rel="stylesheet">
+    rel="stylesheet">
 
 <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
 <!--[if lt IE 9]><script src="<c:url value="/resources/bootstrap/assets/js/ie8-responsive-file-warning.js" />"></script><![endif]-->
 <script
-	src="<c:url value="/resources/bootstrap/assets/js/ie-emulation-modes-warning.js" />"></script>
+    src="<c:url value="/resources/bootstrap/assets/js/ie-emulation-modes-warning.js" />"></script>
 
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 <!--[if lt IE 9]>
@@ -48,85 +48,88 @@
     <![endif]-->
 
 <script
-	src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="<c:url value="/resources/bootstrap/js/bootstrap.min.js" />"></script>
 <script src="<c:url value="/resources/bootstrap/js/main.js" />"></script>
 </head>
 
 <body>
-	<div class="container" style="padding-bottom: 150px;">
+    <div class="container" style="padding-bottom: 150px;">
 
-		<div class="page-header">
-			<nav>
-				<ul class="nav nav-pills pull-right">
-					<li role="presentation"><a href="<c:url value="/" />">Home</a>
-					</li>
+        <div class="page-header">
+            <nav>
+                <ul class="nav nav-pills pull-right">
+                    <li role="presentation"><a href="<c:url value="/" />">Home</a>
+                    </li>
 
-					<sec:authorize access="hasRole('ROLE_ADMIN')">
-						<li role="presentation"><a
-							href="<c:url value="/admin/system/config" />">System Config</a>
-						</li>
-					</sec:authorize>
+                    <sec:authorize access="hasRole('ROLE_ADMIN')">
+                        <li role="presentation"><a
+                            href="<c:url value="/admin/system/config" />">System Config</a>
+                        </li>
+                    </sec:authorize>
 
-					<sec:authorize access="isAuthenticated()">
-						<li role="presentation">
-							<form action="<c:url value="/logout" />" method="POST">
-								<input type="hidden" name="${_csrf.parameterName}"
-									value="${_csrf.token}" />
-								<button class="btn-link" type="submit" title="Logout">
-									<i class="fa fa-sign-out" aria-hidden="true"></i> Logout
-								</button>
-							</form>
-						</li>
-					</sec:authorize>
-				</ul>
+                    <sec:authorize access="isAuthenticated()">
+                        <li role="presentation">
+                            <form action="<c:url value="/logout" />" method="POST">
+                                <input type="hidden" name="${_csrf.parameterName}"
+                                    value="${_csrf.token}" />
+                                <button class="btn-link" type="submit" title="Logout">
+                                    <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+                                </button>
+                            </form>
+                        </li>
+                    </sec:authorize>
+                </ul>
 
-			</nav>
+            </nav>
 
-			<h1>
-				<a class="appName" href="<c:url value="/" />">Cepheus</a>
-			</h1>
-			<p class="lead">Do more with your PDFs!</p>
-		</div>
-
-
-		<c:if test="${show_alert}">
-			<div class="alert alert-${alert_type}" role="alert">${alert_msg}</div>
-		</c:if>
-		<tiles:insertAttribute name="content" />
-
-	</div>
-	<!-- /container -->
-
-	<footer class="footer">
-		<div class="container">
-
-			<div class="row">
-				<div class="col-md-12">
-					<hr style="margin-bottom: 25px;">
-					<p class="text-muted pull-left">
-					<p class="text-muted">
+            <h1>
+                <a class="appName" href="<c:url value="/" />">Cepheus</a>
+            </h1>
+            <p class="lead">Do more with your PDFs!</p>
+        </div>
 
 
-						<sec:authorize access="isAnonymous()">
+        <c:if test="${show_alert}">
+            <div class="alert alert-${alert_type}" role="alert">${alert_msg}</div>
+        </c:if>
+        <tiles:insertAttribute name="content" />
 
-							<form name='f' class="form-inline pull-right"
-								action="<c:url value="/login/authenticate" />" method="POST">
-								Login: <input type="hidden" name="${_csrf.parameterName}"
-									value="${_csrf.token}" /> <input placeholder="Username"
-									class="form-control input-sm" type="text" id="username"
-									name="username" /> <input placeholder="Password"
-									class="form-control input-sm" type="password" id="password"
-									name="password" />
-								<button type="submit" class="btn btn-default btn-sm">Log
-									in</button>
-							</form>
-						</sec:authorize>
-					</p>
-				</div>
-			</div>
-		</div>
-	</footer>
+    </div>
+    <!-- /container -->
+
+    <footer class="footer">
+        <div class="container">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <hr style="margin-bottom: 25px;">
+                    <p class="text-muted pull-left">
+                    <c:set var="PR" value="${pullrequest}" />
+                        Version: ${buildNumber}<c:if test="${not empty PR}">, Pull Request: ${pullrequest}</c:if>
+                    </p>
+                    <p class="text-muted">
+
+
+                        <sec:authorize access="isAnonymous()">
+
+                            <form name='f' class="form-inline pull-right"
+                                action="<c:url value="/login/authenticate" />" method="POST">
+                                Login: <input type="hidden" name="${_csrf.parameterName}"
+                                    value="${_csrf.token}" /> <input placeholder="Username"
+                                    class="form-control input-sm" type="text" id="username"
+                                    name="username" /> <input placeholder="Password"
+                                    class="form-control input-sm" type="password" id="password"
+                                    name="password" />
+                                <button type="submit" class="btn btn-default btn-sm">Log
+                                    in</button>
+                            </form>
+                        </sec:authorize>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
 
 
 </body>

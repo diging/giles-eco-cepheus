@@ -16,6 +16,8 @@
         <geco.cepheus.version>0.2.2-SNAPSHOT</geco.cepheus.version>
 
         <admin.password>admin</admin.password>
+        <pullrequest></pullrequest>
+        <buildNumber></buildNumber>
 
         <tomcat.deploy.path></tomcat.deploy.path>
         <tomcat.app.name></tomcat.app.name>
@@ -325,7 +327,34 @@
                     <path>/${tomcat.app}</path>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <revisionOnScmFailure></revisionOnScmFailure>
+                    <items>
+                        <item>buildNumber\d*</item>
+                        <item>timestamp</item>
+                    </items>
+                    <format>#{0} ({1,date,yyyy-MM-dd HH:mm:ss})</format>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
+    <scm>
+        <connection>scm:svn:http://none</connection>
+        <url>scm:svn:https://none</url>
+    </scm>
 </project>

@@ -12,14 +12,9 @@ import org.mockito.MockitoAnnotations;
 import edu.asu.diging.gilesecosystem.cepheus.exceptions.CepheusExtractionException;
 import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.IImageExtractionManager;
-import edu.asu.diging.gilesecosystem.cepheus.service.pdf.ITextExtractionManager;
 import edu.asu.diging.gilesecosystem.requests.impl.ImageExtractionRequest;
-import edu.asu.diging.gilesecosystem.requests.impl.TextExtractionRequest;
 
 public class ExtractionRequestReceiverTest {
-
-    @Mock
-    private ITextExtractionManager textExtractionManager;
 
     @Mock
     private IImageExtractionManager imageExtractionManager;
@@ -44,38 +39,10 @@ public class ExtractionRequestReceiverTest {
         MockitoAnnotations.initMocks(this);
 
         Mockito.when(
-                propertiesManager.getProperty(IPropertiesManager.KAFKA_EXTRACTION_TOPIC))
-                .thenReturn("geco.requests.pdf.extract");
-        Mockito.when(
                 propertiesManager
                         .getProperty(IPropertiesManager.KAFKA_IMAGE_EXTRACTION_TOPIC))
                 .thenReturn("geco.requests.pdf.toimages");
 
-    }
-
-    @Test
-    public void test_receiveMessage_textExtraction() throws CepheusExtractionException {
-        String TYPE = "giles.request_type.text_extraction";
-        
-        receiverToTest
-                .receiveMessage(
-                        "{\"requestId\":\"" + REQID + "\",\"requestType\":\"" + TYPE + "\"," + 
-                         "\"uploadId\":\"" + UPID + "\",\"documentId\":\"" + DOCID + "\"," + 
-                         "\"fileId\":\"" + FILEID + "\",\"downloadUrl\":\"" + URL + "\"," + 
-                         "\"downloadPath\":\""+ PATH + "\",\"filename\":\"" + FILENAME + "\"}",
-                        "geco.requests.pdf.extract");
-        ArgumentCaptor<TextExtractionRequest> argumentCaptor = ArgumentCaptor.forClass(TextExtractionRequest.class);
-        Mockito.verify(textExtractionManager).extractText(argumentCaptor.capture());
-        
-        TextExtractionRequest request = argumentCaptor.getValue();
-        Assert.assertEquals(REQID, request.getRequestId());
-        Assert.assertEquals(TYPE, request.getType());
-        Assert.assertEquals(UPID, request.getUploadId());
-        Assert.assertEquals(DOCID, request.getDocumentId());
-        Assert.assertEquals(FILEID, request.getFileId());
-        Assert.assertEquals(URL, request.getDownloadUrl());
-        Assert.assertEquals(PATH, request.getDownloadPath());
-        Assert.assertEquals(FILENAME, request.getFilename());
     }
     
     @Test

@@ -12,8 +12,6 @@ public interface IPropertiesManager {
     public final static String PDF_TO_IMAGE_FORMAT = "pdf_to_image_format";
      
     public final static String KAFKA_HOSTS = "kafka_hosts";
-    public final static String KAFKA_EXTRACTION_TOPIC = "topic_extract_text_request";
-    public final static String KAFKA_EXTRACTION_COMPLETE_TOPIC = "topic_extract_text_request_complete";
     public final static String KAFKA_IMAGE_EXTRACTION_TOPIC = "topic_extract_images_request";
     public final static String KAFKA_IMAGE_EXTRACTION_COMPLETE_TOPIC = "topic_extract_images_request_complete";
     public final static String GILES_ACCESS_TOKEN = "giles_access_token";

@@ -38,7 +38,6 @@ public class EditPropertiesController {
     public String getConfigPage(Model model) {
         SystemConfigPage page = new SystemConfigPage();
         
-        page.setGilesAccessToken(propertyManager.getProperty(IPropertiesManager.GILES_ACCESS_TOKEN));
         page.setBaseUrl(propertyManager.getProperty(IPropertiesManager.CEPHEUS_URL));
         
         model.addAttribute("systemConfigPage", page);
@@ -57,7 +56,6 @@ public class EditPropertiesController {
         }
         
         Map<String, String> propertiesMap = new HashMap<String, String>();
-        propertiesMap.put(IPropertiesManager.GILES_ACCESS_TOKEN, systemConfigPage.getGilesAccessToken());
         propertiesMap.put(IPropertiesManager.CEPHEUS_URL, systemConfigPage.getBaseUrl());
         
         try {

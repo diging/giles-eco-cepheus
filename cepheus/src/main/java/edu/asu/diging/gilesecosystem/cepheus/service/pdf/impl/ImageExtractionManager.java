@@ -31,6 +31,7 @@ import edu.asu.diging.gilesecosystem.cepheus.service.pdf.IImageExtractionManager
 import edu.asu.diging.gilesecosystem.requests.ICompletedImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.IImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.IRequestFactory;
+import edu.asu.diging.gilesecosystem.requests.PageStatus;
 import edu.asu.diging.gilesecosystem.requests.RequestStatus;
 import edu.asu.diging.gilesecosystem.requests.exceptions.MessageCreationException;
 import edu.asu.diging.gilesecosystem.requests.impl.CompletedImageExtractionRequest;
@@ -103,6 +104,9 @@ public class ImageExtractionManager extends AExtractionManager implements
         String restEndpoint = getRestEndpoint();
 
         for (int i = 0; i < numPages; i++) {
+            edu.asu.diging.gilesecosystem.requests.impl.Page requestPage = new edu.asu.diging.gilesecosystem.requests.impl.Page();
+            requestPage.setPageNr(i);
+            
             try {
                 BufferedImage image = renderer.renderImageWithDPI(i,
                         Float.parseFloat(dpi), ImageType.valueOf(type));
@@ -110,7 +114,6 @@ public class ImageExtractionManager extends AExtractionManager implements
                 Page pageImage = saveImage(request.getRequestId(),
                         request.getDocumentId(), image, fileName);
 
-                edu.asu.diging.gilesecosystem.requests.impl.Page requestPage = new edu.asu.diging.gilesecosystem.requests.impl.Page();
                 requestPage.setDownloadUrl(restEndpoint
                         + DownloadFileController.GET_FILE_URL
                                 .replace(DownloadFileController.REQUEST_ID_PLACEHOLDER,
@@ -121,22 +124,25 @@ public class ImageExtractionManager extends AExtractionManager implements
                                         pageImage.filename));
                 requestPage.setPathToFile(pageImage.path);
                 requestPage.setFilename(pageImage.filename);
-                requestPage.setPageNr(i);
                 requestPage.setContentType(pageImage.contentType);
                 requestPage.setSize(pageImage.size);
-                pages.add(requestPage);
+                requestPage.setStatus(PageStatus.COMPLETE);
 
-            } catch (NumberFormatException | IOException e) {
+            } catch (IllegalArgumentException | IOException e) {
                 logger.error("Could not render image.", e);
-            }
-        }
+                requestPage.setStatus(PageStatus.FAILED);
+                requestPage.setErrorMsg(e.getMessage());
+            } 
 
+            pages.add(requestPage);
+        }
+        
         try {
             pdfDocument.close();
         } catch (IOException e) {
             logger.error("Error closing document.", e);
         }
-
+        
         ICompletedImageExtractionRequest completedRequest = null;
         try {
             completedRequest = requestFactory.createRequest(request.getRequestId(),

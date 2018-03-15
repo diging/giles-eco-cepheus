@@ -24,58 +24,61 @@ import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
 @PropertySource("classpath:/config.properties")
 @Service
 public class PropertiesManager implements IPropertiesManager {
-    
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private Environment env;
-    
+
     private PropertiesPersister persister;
     private Properties properties;
     private PathResource customPropsResource;
-    
+
     @PostConstruct
     public void init() throws IOException, URISyntaxException {
         persister = new DefaultPropertiesPersister();
         properties = new Properties();
-        
+
         URL resURL = getClass().getResource("/custom.properties");
         customPropsResource = new PathResource(resURL.toURI());
-        
-        persister.load(properties, customPropsResource.getInputStream());      
+
+        persister.load(properties, customPropsResource.getInputStream());
     }
-    
+
     @Override
     public String getProperty(String key) {
         String value = properties.getProperty(key);
         if (value != null) {
             return value.trim();
         }
-        
+
         value = env.getProperty(key);
         if (value != null) {
             value = value.trim();
         }
         return value;
     }
-    
+
     @Override
-    public void setProperty(String key, String value) throws CepheusPropertiesStorageException {
+    public void setProperty(String key, String value)
+            throws CepheusPropertiesStorageException {
         properties.setProperty(key, value);
         saveProperties();
     }
-    
+
     @Override
-    public void updateProperties(Map<String, String> props) throws CepheusPropertiesStorageException {
+    public void updateProperties(Map<String, String> props)
+            throws CepheusPropertiesStorageException {
         for (String key : props.keySet()) {
             properties.setProperty(key, props.get(key));
         }
         saveProperties();
     }
-    
+
     protected void saveProperties() throws CepheusPropertiesStorageException {
         try {
-            persister.store(properties, customPropsResource.getOutputStream(), "Giles custom properties.");
+            persister.store(properties, customPropsResource.getOutputStream(),
+                    "Giles custom properties.");
         } catch (IOException e) {
             throw new CepheusPropertiesStorageException("Could not store properties.", e);
         }

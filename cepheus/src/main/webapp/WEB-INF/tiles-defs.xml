@@ -22,5 +22,8 @@
 	<definition name="admin/system/config" extends="base.definition">
 		<put-attribute name="content" value="/WEB-INF/views/admin/system_config.jsp" />
 	</definition>
+    <definition name="admin/kafka/listeners" extends="base.definition">
+        <put-attribute name="content" value="/WEB-INF/views/admin/manage_listeners.jsp" />
+    </definition>
 	
 </tiles-definitions>

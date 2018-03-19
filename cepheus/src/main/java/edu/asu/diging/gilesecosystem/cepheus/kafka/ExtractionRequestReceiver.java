@@ -13,7 +13,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.asu.diging.gilesecosystem.cepheus.exceptions.CepheusExtractionException;
-import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.IImageExtractionManager;
 import edu.asu.diging.gilesecosystem.requests.IImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.impl.ImageExtractionRequest;
@@ -25,10 +24,6 @@ public class ExtractionRequestReceiver {
     
     @Autowired
     private IImageExtractionManager imageExtractionManager;
-    
-    @Autowired
-    protected IPropertiesManager propertiesManager;
-    
     
     @KafkaListener(id="cepheus.extraction", topics = {"${topic_extract_images_request}"})
     public void receiveMessage(String message, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {

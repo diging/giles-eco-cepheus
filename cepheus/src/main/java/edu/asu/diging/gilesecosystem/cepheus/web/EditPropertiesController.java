@@ -18,10 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import edu.asu.diging.gilesecosystem.cepheus.exceptions.CepheusPropertiesStorageException;
-import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
+import edu.asu.diging.gilesecosystem.cepheus.service.Properties;
 import edu.asu.diging.gilesecosystem.cepheus.web.pages.SystemConfigPage;
 import edu.asu.diging.gilesecosystem.cepheus.web.validators.SystemConfigValidator;
+import edu.asu.diging.gilesecosystem.util.exceptions.PropertiesStorageException;
+import edu.asu.diging.gilesecosystem.util.properties.IPropertiesManager;
 
 @Controller
 public class EditPropertiesController {
@@ -38,7 +39,7 @@ public class EditPropertiesController {
     public String getConfigPage(Model model) {
         SystemConfigPage page = new SystemConfigPage();
         
-        page.setBaseUrl(propertyManager.getProperty(IPropertiesManager.CEPHEUS_URL));
+        page.setBaseUrl(propertyManager.getProperty(Properties.CEPHEUS_URL));
         
         model.addAttribute("systemConfigPage", page);
         return "admin/system/config";
@@ -56,11 +57,11 @@ public class EditPropertiesController {
         }
         
         Map<String, String> propertiesMap = new HashMap<String, String>();
-        propertiesMap.put(IPropertiesManager.CEPHEUS_URL, systemConfigPage.getBaseUrl());
+        propertiesMap.put(Properties.CEPHEUS_URL, systemConfigPage.getBaseUrl());
         
         try {
             propertyManager.updateProperties(propertiesMap);
-        } catch (CepheusPropertiesStorageException e) {
+        } catch (PropertiesStorageException e) {
             model.addAttribute("show_alert", true);
             model.addAttribute("alert_type", "danger");
             model.addAttribute("alert_msg", "An unexpected error occurred. System Configuration could not be saved.");

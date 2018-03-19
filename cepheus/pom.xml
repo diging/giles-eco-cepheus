@@ -14,6 +14,8 @@
         <geco.requests.version>0.6</geco.requests.version>
         <geco.util.version>0.4.2</geco.util.version>
         <geco.cepheus.version>0.2.2-SNAPSHOT</geco.cepheus.version>
+        <geco.kafka-util.version>0.1</geco.kafka-util.version>
+        <geco.september.util.version>0.2</geco.september.util.version>
 
         <admin.password>admin</admin.password>
         <pullrequest></pullrequest>
@@ -52,6 +54,18 @@
             <groupId>edu.asu.diging.giles-eco</groupId>
             <artifactId>util</artifactId>
             <version>${geco.util.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>edu.asu.diging.giles-eco</groupId>
+            <artifactId>kafka-util</artifactId>
+            <version>${geco.kafka-util.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>edu.asu.diging.giles-eco</groupId>
+            <artifactId>september-util</artifactId>
+            <version>${geco.september.util.version}</version>
         </dependency>
 
         <!-- Spring -->

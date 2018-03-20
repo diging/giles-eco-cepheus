@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 
 import edu.asu.diging.gilesecosystem.cepheus.exceptions.CepheusExtractionException;
 import edu.asu.diging.gilesecosystem.cepheus.rest.DownloadFileController;
-import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
+import edu.asu.diging.gilesecosystem.cepheus.service.Properties;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.IImageExtractionManager;
 import edu.asu.diging.gilesecosystem.requests.ICompletedImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.IImageExtractionRequest;
@@ -37,6 +37,7 @@ import edu.asu.diging.gilesecosystem.requests.exceptions.MessageCreationExceptio
 import edu.asu.diging.gilesecosystem.requests.impl.CompletedImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.kafka.IRequestProducer;
 import edu.asu.diging.gilesecosystem.util.files.IFileStorageManager;
+import edu.asu.diging.gilesecosystem.util.properties.IPropertiesManager;
 
 @Service
 public class ImageExtractionManager extends AExtractionManager implements
@@ -83,12 +84,12 @@ public class ImageExtractionManager extends AExtractionManager implements
             throws CepheusExtractionException {
         logger.info("Extracting images for: " + request.getDownloadUrl());
 
-        String dpi = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_DPI)
+        String dpi = propertiesManager.getProperty(Properties.PDF_TO_IMAGE_DPI)
                 .trim();
-        String type = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_TYPE)
+        String type = propertiesManager.getProperty(Properties.PDF_TO_IMAGE_TYPE)
                 .trim();
         String format = propertiesManager.getProperty(
-                IPropertiesManager.PDF_TO_IMAGE_FORMAT).trim();
+                Properties.PDF_TO_IMAGE_FORMAT).trim();
 
         PDDocument pdfDocument;
         try {
@@ -163,7 +164,7 @@ public class ImageExtractionManager extends AExtractionManager implements
                     .sendRequest(
                             completedRequest,
                             propertiesManager
-                                    .getProperty(IPropertiesManager.KAFKA_IMAGE_EXTRACTION_COMPLETE_TOPIC));
+                                    .getProperty(Properties.KAFKA_IMAGE_EXTRACTION_COMPLETE_TOPIC));
         } catch (MessageCreationException e) {
             logger.error("Could not send message.", e);
         }
@@ -172,10 +173,10 @@ public class ImageExtractionManager extends AExtractionManager implements
 
     private Page saveImage(String requestId, String documentId, BufferedImage image,
             String fileName) throws IOException, FileNotFoundException {
-        String dpi = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_DPI)
+        String dpi = propertiesManager.getProperty(Properties.PDF_TO_IMAGE_DPI)
                 .trim();
         String format = propertiesManager.getProperty(
-                IPropertiesManager.PDF_TO_IMAGE_FORMAT).trim();
+                Properties.PDF_TO_IMAGE_FORMAT).trim();
 
         String dirFolder = fileStorageManager.getAndCreateStoragePath(requestId,
                 documentId, null);

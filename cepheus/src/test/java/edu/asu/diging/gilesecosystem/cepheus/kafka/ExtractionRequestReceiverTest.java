@@ -10,9 +10,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import edu.asu.diging.gilesecosystem.cepheus.exceptions.CepheusExtractionException;
-import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
+import edu.asu.diging.gilesecosystem.cepheus.service.Properties;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.IImageExtractionManager;
 import edu.asu.diging.gilesecosystem.requests.impl.ImageExtractionRequest;
+import edu.asu.diging.gilesecosystem.util.properties.IPropertiesManager;
 
 public class ExtractionRequestReceiverTest {
 
@@ -40,7 +41,7 @@ public class ExtractionRequestReceiverTest {
 
         Mockito.when(
                 propertiesManager
-                        .getProperty(IPropertiesManager.KAFKA_IMAGE_EXTRACTION_TOPIC))
+                        .getProperty(Properties.KAFKA_IMAGE_EXTRACTION_TOPIC))
                 .thenReturn("geco.requests.pdf.toimages");
 
     }

@@ -16,8 +16,9 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 
 import edu.asu.diging.gilesecosystem.cepheus.kafka.ExtractionRequestReceiver;
-import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
+import edu.asu.diging.gilesecosystem.cepheus.service.Properties;
 import edu.asu.diging.gilesecosystem.requests.kafka.KafkaConfig;
+import edu.asu.diging.gilesecosystem.util.properties.IPropertiesManager;
 
 @Configuration
 @EnableKafka
@@ -65,7 +66,7 @@ public class CepheusKafkaConfig implements KafkaConfig {
 
     @Override
     public String getHosts() {
-        return propertiesManager.getProperty(IPropertiesManager.KAFKA_HOSTS);
+        return propertiesManager.getProperty(Properties.KAFKA_HOSTS);
     }
 
     @Override

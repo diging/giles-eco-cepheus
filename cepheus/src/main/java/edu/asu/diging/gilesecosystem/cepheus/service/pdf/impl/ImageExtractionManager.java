@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 
 import edu.asu.diging.gilesecosystem.cepheus.exceptions.CepheusExtractionException;
 import edu.asu.diging.gilesecosystem.cepheus.rest.DownloadFileController;
-import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
+import edu.asu.diging.gilesecosystem.cepheus.service.Properties;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.IImageExtractionManager;
 import edu.asu.diging.gilesecosystem.requests.ICompletedImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.IImageExtractionRequest;
@@ -37,6 +37,7 @@ import edu.asu.diging.gilesecosystem.requests.exceptions.MessageCreationExceptio
 import edu.asu.diging.gilesecosystem.requests.impl.CompletedImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.kafka.IRequestProducer;
 import edu.asu.diging.gilesecosystem.util.files.IFileStorageManager;
+import edu.asu.diging.gilesecosystem.util.properties.IPropertiesManager;
 
 @Service
 public class ImageExtractionManager extends AExtractionManager implements
@@ -83,65 +84,70 @@ public class ImageExtractionManager extends AExtractionManager implements
             throws CepheusExtractionException {
         logger.info("Extracting images for: " + request.getDownloadUrl());
 
-        String dpi = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_DPI)
+        String dpi = propertiesManager.getProperty(Properties.PDF_TO_IMAGE_DPI)
                 .trim();
-        String type = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_TYPE)
+        String type = propertiesManager.getProperty(Properties.PDF_TO_IMAGE_TYPE)
                 .trim();
         String format = propertiesManager.getProperty(
-                IPropertiesManager.PDF_TO_IMAGE_FORMAT).trim();
+                Properties.PDF_TO_IMAGE_FORMAT).trim();
 
-        PDDocument pdfDocument;
+        PDDocument pdfDocument = null;
+        RequestStatus status = RequestStatus.COMPLETE;
         try {
             pdfDocument = PDDocument.load(new ByteArrayInputStream(downloadFile(request.getDownloadUrl())), MemoryUsageSetting.setupTempFileOnly());
         } catch (IOException e) {
-            throw new CepheusExtractionException(e);
+            logger.error("Could not extract text.", e);
+            status = RequestStatus.FAILED;
         }
 
-        int numPages = pdfDocument.getNumberOfPages();
-        PDFRenderer renderer = new PDFRenderer(pdfDocument);
         List<edu.asu.diging.gilesecosystem.requests.impl.Page> pages = new ArrayList<>();
-
-        String restEndpoint = getRestEndpoint();
-
-        for (int i = 0; i < numPages; i++) {
-            edu.asu.diging.gilesecosystem.requests.impl.Page requestPage = new edu.asu.diging.gilesecosystem.requests.impl.Page();
-            requestPage.setPageNr(i);
+        if (pdfDocument != null) {
+            int numPages = pdfDocument.getNumberOfPages();
+            PDFRenderer renderer = new PDFRenderer(pdfDocument);
+            
+            String restEndpoint = getRestEndpoint();
+    
+            for (int i = 0; i < numPages; i++) {
+                edu.asu.diging.gilesecosystem.requests.impl.Page requestPage = new edu.asu.diging.gilesecosystem.requests.impl.Page();
+                requestPage.setPageNr(i);
+                
+                try {
+                    BufferedImage image = renderer.renderImageWithDPI(i,
+                            Float.parseFloat(dpi), ImageType.valueOf(type));
+                    String fileName = request.getFilename() + "." + i + "." + format;
+                    Page pageImage = saveImage(request.getRequestId(),
+                            request.getDocumentId(), image, fileName);
+    
+                    requestPage.setDownloadUrl(restEndpoint
+                            + DownloadFileController.GET_FILE_URL
+                                    .replace(DownloadFileController.REQUEST_ID_PLACEHOLDER,
+                                            request.getRequestId())
+                                    .replace(DownloadFileController.DOCUMENT_ID_PLACEHOLDER,
+                                            request.getDocumentId())
+                                    .replace(DownloadFileController.FILENAME_PLACEHOLDER,
+                                            pageImage.filename));
+                    requestPage.setPathToFile(pageImage.path);
+                    requestPage.setFilename(pageImage.filename);
+                    requestPage.setContentType(pageImage.contentType);
+                    requestPage.setSize(pageImage.size);
+                    requestPage.setStatus(PageStatus.COMPLETE);
+    
+                } catch (IllegalArgumentException | IOException e) {
+                    logger.error("Could not render image.", e);
+                    requestPage.setStatus(PageStatus.FAILED);
+                    requestPage.setErrorMsg(e.getMessage());
+                } 
+    
+                pages.add(requestPage);
+            }
             
             try {
-                BufferedImage image = renderer.renderImageWithDPI(i,
-                        Float.parseFloat(dpi), ImageType.valueOf(type));
-                String fileName = request.getFilename() + "." + i + "." + format;
-                Page pageImage = saveImage(request.getRequestId(),
-                        request.getDocumentId(), image, fileName);
-
-                requestPage.setDownloadUrl(restEndpoint
-                        + DownloadFileController.GET_FILE_URL
-                                .replace(DownloadFileController.REQUEST_ID_PLACEHOLDER,
-                                        request.getRequestId())
-                                .replace(DownloadFileController.DOCUMENT_ID_PLACEHOLDER,
-                                        request.getDocumentId())
-                                .replace(DownloadFileController.FILENAME_PLACEHOLDER,
-                                        pageImage.filename));
-                requestPage.setPathToFile(pageImage.path);
-                requestPage.setFilename(pageImage.filename);
-                requestPage.setContentType(pageImage.contentType);
-                requestPage.setSize(pageImage.size);
-                requestPage.setStatus(PageStatus.COMPLETE);
-
-            } catch (IllegalArgumentException | IOException e) {
-                logger.error("Could not render image.", e);
-                requestPage.setStatus(PageStatus.FAILED);
-                requestPage.setErrorMsg(e.getMessage());
-            } 
-
-            pages.add(requestPage);
+                pdfDocument.close();
+            } catch (IOException e) {
+                logger.error("Error closing document.", e);
+            }
         }
         
-        try {
-            pdfDocument.close();
-        } catch (IOException e) {
-            logger.error("Error closing document.", e);
-        }
         
         ICompletedImageExtractionRequest completedRequest = null;
         try {
@@ -153,7 +159,7 @@ public class ImageExtractionManager extends AExtractionManager implements
         }
 
         completedRequest.setDocumentId(request.getDocumentId());
-        completedRequest.setStatus(RequestStatus.COMPLETE);
+        completedRequest.setStatus(status);
         completedRequest.setExtractionDate(OffsetDateTime.now(ZoneId.of("UTC"))
                 .toString());
         completedRequest.setPages(pages);
@@ -163,7 +169,7 @@ public class ImageExtractionManager extends AExtractionManager implements
                     .sendRequest(
                             completedRequest,
                             propertiesManager
-                                    .getProperty(IPropertiesManager.KAFKA_IMAGE_EXTRACTION_COMPLETE_TOPIC));
+                                    .getProperty(Properties.KAFKA_IMAGE_EXTRACTION_COMPLETE_TOPIC));
         } catch (MessageCreationException e) {
             logger.error("Could not send message.", e);
         }
@@ -172,10 +178,10 @@ public class ImageExtractionManager extends AExtractionManager implements
 
     private Page saveImage(String requestId, String documentId, BufferedImage image,
             String fileName) throws IOException, FileNotFoundException {
-        String dpi = propertiesManager.getProperty(IPropertiesManager.PDF_TO_IMAGE_DPI)
+        String dpi = propertiesManager.getProperty(Properties.PDF_TO_IMAGE_DPI)
                 .trim();
         String format = propertiesManager.getProperty(
-                IPropertiesManager.PDF_TO_IMAGE_FORMAT).trim();
+                Properties.PDF_TO_IMAGE_FORMAT).trim();
 
         String dirFolder = fileStorageManager.getAndCreateStoragePath(requestId,
                 documentId, null);

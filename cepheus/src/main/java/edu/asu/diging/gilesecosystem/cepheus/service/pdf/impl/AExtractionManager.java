@@ -18,8 +18,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 
-import edu.asu.diging.gilesecosystem.cepheus.service.IPropertiesManager;
+import edu.asu.diging.gilesecosystem.cepheus.service.Properties;
 import edu.asu.diging.gilesecosystem.util.files.IFileStorageManager;
+import edu.asu.diging.gilesecosystem.util.properties.IPropertiesManager;
 
 public class AExtractionManager {
     
@@ -89,7 +90,7 @@ public class AExtractionManager {
     }
     
     protected String getRestEndpoint() {
-        String restEndpoint = propertiesManager.getProperty(IPropertiesManager.CEPHEUS_URL);
+        String restEndpoint = propertiesManager.getProperty(Properties.CEPHEUS_URL);
         if (restEndpoint.endsWith("/")) {
             restEndpoint = restEndpoint.substring(0, restEndpoint.length()-1);
         }

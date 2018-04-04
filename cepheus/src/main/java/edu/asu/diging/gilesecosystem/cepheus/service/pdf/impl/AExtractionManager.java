@@ -21,15 +21,19 @@ import org.springframework.web.client.RestTemplate;
 import edu.asu.diging.gilesecosystem.cepheus.service.Properties;
 import edu.asu.diging.gilesecosystem.util.files.IFileStorageManager;
 import edu.asu.diging.gilesecosystem.util.properties.IPropertiesManager;
+import edu.asu.diging.gilesecosystem.septemberutil.properties.MessageType;
+import edu.asu.diging.gilesecosystem.septemberutil.service.ISystemMessageHandler;
 
 public class AExtractionManager {
-    
+
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
     protected IFileStorageManager fileStorageManager;
-    
-    
+
+    @Autowired
+    private ISystemMessageHandler messageHandler;
+
     @Autowired
     protected IPropertiesManager propertiesManager;
 
@@ -41,18 +45,16 @@ public class AExtractionManager {
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_OCTET_STREAM));
         HttpEntity<String> entity = new HttpEntity<String>(headers);
 
-        ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET,
-                entity, byte[].class);
+        ResponseEntity<byte[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, byte[].class);
         if (response.getStatusCode().equals(HttpStatus.OK)) {
             return response.getBody();
         }
         return null;
     }
-    
-    protected Page saveTextToFile(int pageNr, String requestId,
-            String documentId, String pageText, String filename, String fileExtentions) {
-        String docFolder = fileStorageManager.getAndCreateStoragePath(requestId,
-                documentId, null);
+
+    protected Page saveTextToFile(int pageNr, String requestId, String documentId, String pageText, String filename,
+            String fileExtentions) {
+        String docFolder = fileStorageManager.getAndCreateStoragePath(requestId, documentId, null);
 
         if (pageNr > -1) {
             filename = filename + "." + pageNr;
@@ -68,7 +70,7 @@ public class AExtractionManager {
         try {
             fileObject.createNewFile();
         } catch (IOException e) {
-            logger.error("Could not create file.", e);
+            messageHandler.handleMessage("Could not create file.", e, MessageType.ERROR);
             return null;
         }
 
@@ -79,7 +81,7 @@ public class AExtractionManager {
             bfWriter.close();
             writer.close();
         } catch (IOException e) {
-            logger.error("Could not write text to file.", e);
+            messageHandler.handleMessage("Could not write text to file.", e, MessageType.ERROR);
             return null;
         }
 
@@ -88,25 +90,25 @@ public class AExtractionManager {
         page.size = fileObject.length();
         return page;
     }
-    
+
     protected String getRestEndpoint() {
         String restEndpoint = propertiesManager.getProperty(Properties.CEPHEUS_URL);
         if (restEndpoint.endsWith("/")) {
-            restEndpoint = restEndpoint.substring(0, restEndpoint.length()-1);
+            restEndpoint = restEndpoint.substring(0, restEndpoint.length() - 1);
         }
         return restEndpoint;
     }
-    
+
     class Page {
         public String path;
         public String filename;
         public String contentType;
         public long size;
-        
+
         public Page(String path, String filename) {
             super();
             this.path = path;
             this.filename = filename;
-        }  
+        }
     }
 }

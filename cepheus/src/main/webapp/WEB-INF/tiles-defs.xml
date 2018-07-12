@@ -25,5 +25,8 @@
     <definition name="admin/kafka/listeners" extends="base.definition">
         <put-attribute name="content" value="/WEB-INF/views/admin/manage_listeners.jsp" />
     </definition>
+    <definition name="admin/requests/progress" extends="base.definition">
+        <put-attribute name="content" value="/WEB-INF/views/admin/progress.jsp" />
+    </definition>
 	
 </tiles-definitions>

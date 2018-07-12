@@ -69,6 +69,9 @@
                         <li role="presentation"><a
                             href="<c:url value="/admin/kafka/listeners" />">Kafka</a>
                         </li>
+                        <li role="presentation"><a
+                            href="<c:url value="/admin/requests/progress" />">Progress</a>
+                        </li>
                     </sec:authorize>
 
                     <sec:authorize access="isAuthenticated()">

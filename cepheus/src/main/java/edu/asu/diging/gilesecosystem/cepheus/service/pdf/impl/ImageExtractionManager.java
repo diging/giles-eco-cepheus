@@ -28,6 +28,8 @@ import edu.asu.diging.gilesecosystem.cepheus.exceptions.CepheusExtractionExcepti
 import edu.asu.diging.gilesecosystem.cepheus.rest.DownloadFileController;
 import edu.asu.diging.gilesecosystem.cepheus.service.Properties;
 import edu.asu.diging.gilesecosystem.cepheus.service.pdf.IImageExtractionManager;
+import edu.asu.diging.gilesecosystem.cepheus.service.progress.IProgressManager;
+import edu.asu.diging.gilesecosystem.cepheus.service.progress.ProgressPhase;
 import edu.asu.diging.gilesecosystem.requests.ICompletedImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.IImageExtractionRequest;
 import edu.asu.diging.gilesecosystem.requests.IRequestFactory;
@@ -60,6 +62,9 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
 
     @Autowired
     private IRequestProducer requestProducer;
+    
+    @Autowired
+    private IProgressManager progressManager;
 
     @PostConstruct
     public void init() {
@@ -84,10 +89,13 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
     @Override
     public void extractImages(IImageExtractionRequest request) throws CepheusExtractionException {
         logger.info("Extracting images for: " + request.getDownloadUrl());
-
+        
         String dpi = propertiesManager.getProperty(Properties.PDF_TO_IMAGE_DPI).trim();
         String type = propertiesManager.getProperty(Properties.PDF_TO_IMAGE_TYPE).trim();
         String format = propertiesManager.getProperty(Properties.PDF_TO_IMAGE_FORMAT).trim();
+        
+        progressManager.setPhase(ProgressPhase.RAMP_UP);
+        progressManager.startNewRequest(request);
 
         PDDocument pdfDocument = null;
         RequestStatus status = RequestStatus.COMPLETE;
@@ -101,12 +109,16 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
 
         List<edu.asu.diging.gilesecosystem.requests.impl.Page> pages = new ArrayList<>();
         if (pdfDocument != null) {
+            progressManager.setPhase(ProgressPhase.PROCESSING);
+            
             int numPages = pdfDocument.getNumberOfPages();
+            progressManager.setTotalPages(numPages);
             PDFRenderer renderer = new PDFRenderer(pdfDocument);
 
             String restEndpoint = getRestEndpoint();
 
             for (int i = 0; i < numPages; i++) {
+                progressManager.updateCurrentPage(i+1);
                 edu.asu.diging.gilesecosystem.requests.impl.Page requestPage = new edu.asu.diging.gilesecosystem.requests.impl.Page();
                 requestPage.setPageNr(i);
 
@@ -134,7 +146,7 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
 
                 pages.add(requestPage);
             }
-
+            
             try {
                 pdfDocument.close();
             } catch (IOException e) {
@@ -142,6 +154,7 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
             }
         }
 
+        progressManager.setPhase(ProgressPhase.WIND_DOWN);
         ICompletedImageExtractionRequest completedRequest = null;
         try {
             completedRequest = requestFactory.createRequest(request.getRequestId(), request.getUploadId());
@@ -155,13 +168,15 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
         completedRequest.setExtractionDate(OffsetDateTime.now(ZoneId.of("UTC")).toString());
         completedRequest.setPages(pages);
 
+        progressManager.setPhase(ProgressPhase.DONE);
         try {
             requestProducer.sendRequest(completedRequest,
                     propertiesManager.getProperty(Properties.KAFKA_IMAGE_EXTRACTION_COMPLETE_TOPIC));
         } catch (MessageCreationException e) {
             messageHandler.handleMessage("Could not send message.", e, MessageType.ERROR);
         }
-
+        
+        progressManager.reset();
     }
 
     private Page saveImage(String requestId, String documentId, BufferedImage image, String fileName)

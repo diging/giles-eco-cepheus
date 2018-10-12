@@ -138,10 +138,6 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
                     requestPage.setSize(pageImage.size);
                     requestPage.setStatus(PageStatus.COMPLETE);
                     
-					if ((requestPage != null) && ((requestPage.getDownloadUrl() == null) || (requestPage.getDownloadUrl().contains("null")))) {// check for null values
-						requestPage.setStatus(PageStatus.FAILED);
-						requestPage.setErrorMsg("Download URL is null or contains null value components.");
-					}
                 } catch (IllegalArgumentException | IOException e) {
                     messageHandler.handleMessage("Could not render image.", e, MessageType.ERROR);
                     requestPage.setStatus(PageStatus.FAILED);

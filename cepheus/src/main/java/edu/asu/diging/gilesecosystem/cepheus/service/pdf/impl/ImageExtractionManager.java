@@ -143,8 +143,7 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
                     requestPage.setContentType(pageImage.contentType);
                     requestPage.setSize(pageImage.size);
                     requestPage.setStatus(PageStatus.COMPLETE);
-
-                } catch (IllegalArgumentException | IOException | NegativeArraySizeException e) {
+                } catch (IOException | RuntimeException e) {
                     messageHandler.handleMessage("Could not render image.", e, MessageType.ERROR);
                     requestPage.setStatus(PageStatus.FAILED);
                     requestPage.setErrorMsg(e.getMessage());

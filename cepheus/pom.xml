@@ -16,7 +16,7 @@
         <geco.util.version>0.5</geco.util.version>
         <geco.cepheus.version>0.2.2-SNAPSHOT</geco.cepheus.version>
         <geco.kafka-util.version>0.2</geco.kafka-util.version>
-        <geco.september.util.version>0.2</geco.september.util.version>
+        <geco.september.util.version>0.3</geco.september.util.version>
 
         <admin.password>admin</admin.password>
         <pullrequest></pullrequest>

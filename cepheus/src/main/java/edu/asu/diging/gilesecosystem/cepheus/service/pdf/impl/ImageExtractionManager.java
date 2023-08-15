@@ -172,6 +172,7 @@ public class ImageExtractionManager extends AExtractionManager implements IImage
         completedRequest.setStatus(status);
         completedRequest.setExtractionDate(OffsetDateTime.now(ZoneId.of("UTC")).toString());
         completedRequest.setPages(pages);
+        completedRequest.setGeneratedByService(propertiesManager.getProperty(Properties.APPLICATION_ID));
 
         progressManager.setPhase(ProgressPhase.DONE);
         try {
